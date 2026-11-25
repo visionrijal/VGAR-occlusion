@@ -16,12 +16,16 @@ if [ ! -x "$MAMBA_EXE" ]; then
 fi
 "$MAMBA_EXE" --version
 
-# 2. environments
+# 2. environments: conda packages first, then pip with the env's headers on CPATH
+#    (Python 3.7 headers include crypt.h from the env's libxcrypt). Safe to rerun.
 for env in splatloc dav2; do
-  if [ -d "$MAMBA_ROOT_PREFIX/envs/$env" ]; then echo "== env $env exists"; else
+  if [ -x "$MAMBA_ROOT_PREFIX/envs/$env/bin/python" ]; then echo "== env $env exists"; else
     echo "== creating env $env (10-20 min)"
     "$MAMBA_EXE" create -y -n "$env" -f "env/$env.yml"
   fi
+  activate "$env"
+  echo "== pip packages for $env"
+  CPATH="$CONDA_PREFIX/include:${CPATH:-}" pip install -r "env/$env-pip.txt"
 done
 "$MAMBA_EXE" clean -a -y >/dev/null   # drop the package cache (~7 GB) to stay well inside the 100 GB home quota
 
