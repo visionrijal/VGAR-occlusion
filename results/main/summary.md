@@ -35,7 +35,12 @@
 | MLP | 0.977 ± 0.012 | 0.932 ± 0.021 | 0.952 ± 0.016 | 0.867 ± 0.017 | 0.123 ± 0.028 | 0.119 ± 0.039 | 0.030 ± 0.007 | 0.023 ± 0.010 |
 | UNet | 0.983 ± 0.008 | 0.939 ± 0.021 | 0.958 ± 0.016 | 0.877 ± 0.021 | 0.104 ± 0.031 | 0.119 ± 0.038 | 0.026 ± 0.007 | 0.019 ± 0.013 |
 
-Wilcoxon signed-rank, U-Net vs B2 (per-view band-3 AP, n = 720 views): median difference +0.0122, U-Net better in 85% of views, p = 1.46e-77
+Paired tests, U-Net vs the better training-free baseline (B2, band-3 AP). The scene-level test is the primary one; views within a scene are not independent.
+
+- scene level, all: U-Net better in 8/8 scenes, mean difference +0.0137, Wilcoxon p = 0.00781
+- scene level, planes: U-Net better in 8/8 scenes, mean difference +0.0127, Wilcoxon p = 0.00781
+- scene level, objects: U-Net better in 8/8 scenes, mean difference +0.0229, Wilcoxon p = 0.00781
+- view level (all masks, n = 720 views, not independent): median difference +0.0122, U-Net better in 85% of views, p = 1.46e-77
 
 Runtime on NVIDIA A100 80GB PCIe: stats pass 3.076 ms, 2.186 ms per depth slice, U-Net 2.90 ms per 640x480 frame (473,569 parameters).
 
@@ -74,7 +79,12 @@ Runtime on NVIDIA A100 80GB PCIe: stats pass 3.076 ms, 2.186 ms per depth slice,
 | MLP | 0.865 ± 0.061 | 0.794 ± 0.052 | 0.824 ± 0.055 | 0.755 ± 0.034 | 0.209 ± 0.085 | 0.243 ± 0.092 | 0.073 ± 0.017 | 0.039 ± 0.013 |
 | UNet | 0.852 ± 0.100 | 0.808 ± 0.058 | 0.838 ± 0.061 | 0.765 ± 0.028 | 0.190 ± 0.084 | 0.248 ± 0.105 | 0.075 ± 0.027 | 0.051 ± 0.034 |
 
-Wilcoxon signed-rank, U-Net vs B2 (per-view band-3 AP, n = 720 views): median difference +0.0066, U-Net better in 67% of views, p = 2.48e-18
+Paired tests, U-Net vs the better training-free baseline (B2, band-3 AP). The scene-level test is the primary one; views within a scene are not independent.
+
+- scene level, all: U-Net better in 6/8 scenes, mean difference +0.0005, Wilcoxon p = 0.383
+- scene level, planes: U-Net better in 6/8 scenes, mean difference -0.0017, Wilcoxon p = 0.547
+- scene level, objects: U-Net better in 8/8 scenes, mean difference +0.0212, Wilcoxon p = 0.00781
+- view level (all masks, n = 720 views, not independent): median difference +0.0066, U-Net better in 67% of views, p = 2.48e-18
 
 Runtime on NVIDIA A100 80GB PCIe: stats pass 3.326 ms, 2.268 ms per depth slice, U-Net 2.90 ms per 640x480 frame (473,569 parameters).
 
@@ -113,7 +123,12 @@ Runtime on NVIDIA A100 80GB PCIe: stats pass 3.326 ms, 2.268 ms per depth slice,
 | MLP | 0.772 ± 0.100 | 0.718 ± 0.074 | 0.740 ± 0.082 | 0.715 ± 0.039 | 0.216 ± 0.056 | 0.333 ± 0.092 | 0.101 ± 0.024 | 0.053 ± 0.024 |
 | UNet | 0.786 ± 0.120 | 0.764 ± 0.060 | 0.789 ± 0.067 | 0.730 ± 0.024 | 0.166 ± 0.065 | 0.370 ± 0.116 | 0.101 ± 0.035 | 0.055 ± 0.034 |
 
-Wilcoxon signed-rank, U-Net vs B2 (per-view band-3 AP, n = 720 views): median difference +0.0064, U-Net better in 57% of views, p = 5.47e-09
+Paired tests, U-Net vs the better training-free baseline (B2, band-3 AP). The scene-level test is the primary one; views within a scene are not independent.
+
+- scene level, all: U-Net better in 5/8 scenes, mean difference +0.0198, Wilcoxon p = 0.25
+- scene level, planes: U-Net better in 5/8 scenes, mean difference +0.0160, Wilcoxon p = 0.25
+- scene level, objects: U-Net better in 7/8 scenes, mean difference +0.0655, Wilcoxon p = 0.0156
+- view level (all masks, n = 720 views, not independent): median difference +0.0064, U-Net better in 57% of views, p = 5.47e-09
 
 Runtime on NVIDIA A100 80GB PCIe: stats pass 2.902 ms, 2.094 ms per depth slice, U-Net 2.90 ms per 640x480 frame (473,569 parameters).
 

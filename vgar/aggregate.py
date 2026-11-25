@@ -51,8 +51,17 @@ for c in CONDS:
         best = max(means, key=means.get)
         a, b = np.array([d["UNet"] for _, _, d in pv]), np.array([d[best] for _, _, d in pv])
         stat, pval = wilcoxon(a, b)
-        lines += [f"Wilcoxon signed-rank, U-Net vs {best} (per-view band-3 AP, n = {len(a)} views): "
-                  f"median difference {np.median(a - b):+.4f}, U-Net better in {(a > b).mean():.0%} of views, p = {pval:.2e}", ""]
+        # Views within a scene are correlated, so the scene-level test (n = 8 paired folds) is the one to report.
+        lines += ["Paired tests, U-Net vs the better training-free baseline "
+                  f"({best}, band-3 AP). The scene-level test is the primary one; views within a scene are not independent.", ""]
+        for subset in ["all", "planes", "objects"]:
+            u = np.array([r["results"][subset]["band3"]["UNet"]["AP"] for r in R])
+            v = np.array([r["results"][subset]["band3"][best]["AP"] for r in R])
+            ps = wilcoxon(u, v).pvalue if len(R) > 1 and np.any(u != v) else float("nan")
+            lines.append(f"- scene level, {subset}: U-Net better in {(u > v).sum()}/{len(u)} scenes, "
+                         f"mean difference {np.mean(u - v):+.4f}, Wilcoxon p = {ps:.3g}")
+        lines += [f"- view level (all masks, n = {len(a)} views, not independent): median difference "
+                  f"{np.median(a - b):+.4f}, U-Net better in {(a > b).mean():.0%} of views, p = {pval:.2e}", ""]
     rt = [r for r in R if "unet_ms_per_frame" in r["info"]]
     if rt:
         r0 = rt[0]
