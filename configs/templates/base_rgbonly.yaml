@@ -1,0 +1,8 @@
+inherit_from: "configs/vgar/base_rgbd.yaml"
+Results:
+  save_dir: "@WORK@/outputs/rgbonly"
+Dataset:
+  depth_source: "none"
+Training:
+  depth_loss: False
+  primitive_reg: False   # key-primitive regularization would pin Gaussians to the random init depth

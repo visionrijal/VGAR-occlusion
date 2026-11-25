@@ -1,0 +1,8 @@
+inherit_from: "configs/vgar/base_mono.yaml"
+Dataset:
+  mono_depth_folder: "@WORK@/data/mono_depth/office_0"
+  dataset_path: "@WORK@/data/replica/office_0"
+
+scene:
+  bound: [[-3,3],[-4,2.5],[-2,2.5]]
+  voxel_sdf: 0.06

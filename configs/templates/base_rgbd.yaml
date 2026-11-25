@@ -1,0 +1,5 @@
+inherit_from: "configs/replica_nerf/base_config.yaml"
+Results:
+  save_dir: "@WORK@/outputs/rgbd"
+Dataset:
+  generated_folder: "@WORK@/data/generated/splatloc-generated-files/replica"

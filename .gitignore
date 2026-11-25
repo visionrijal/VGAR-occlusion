@@ -1,0 +1,13 @@
+# Never commit data, models or build products (Replica licence forbids redistribution)
+data/
+outputs/
+downloads/
+checkpoints/
+*.ply
+*.pth
+*.npy
+*.npz
+*.zip
+__pycache__/
+*.log
+!results/**

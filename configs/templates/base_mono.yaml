@@ -1,0 +1,7 @@
+inherit_from: "configs/vgar/base_rgbd.yaml"
+Results:
+  save_dir: "@WORK@/outputs/mono"
+Dataset:
+  depth_source: "mono"
+Training:
+  depth_loss: True

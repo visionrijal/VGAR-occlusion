@@ -1,0 +1,7 @@
+inherit_from: "configs/vgar/base_rgbd.yaml"
+Dataset:
+  dataset_path: "@WORK@/data/replica/office_1"
+
+scene:
+  bound: [[-2,3.2],[-1.7,2.7],[-1.2,2.0]]
+  voxel_sdf: 0.06

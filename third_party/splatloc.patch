@@ -1,0 +1,50 @@
+diff --git a/models/encoding.py b/models/encoding.py
+index b2e94bc..b612025 100644
+--- a/models/encoding.py
++++ b/models/encoding.py
+@@ -1,6 +1,9 @@
+ import torch
+ import numpy as np
+-import tinycudann as tcnn
++try:  # VGAR: tcnn is only needed by the localization decoder, not Gaussian mapping
++    import tinycudann as tcnn
++except ImportError:
++    tcnn = None
+ 
+ def get_encoder(encoding, input_dim=3,
+                 degree=4, n_bins=16, n_frequencies=12,
+diff --git a/train_gaussians.py b/train_gaussians.py
+index 596227c..a1e2318 100644
+--- a/train_gaussians.py
++++ b/train_gaussians.py
+@@ -302,6 +302,16 @@ class SplatLoc:
+         gt_img = viewpoint.original_image.cuda()
+         valid_rgb = (gt_img.sum(dim=0) > rgb_boundary_threshold)[None]
+ 
++        # VGAR: Dataset.depth_source selects the depth used for init (+ loss): 'gt' (SplatLoc default),
++        # 'mono' (predicted depth .npy per frame, also replaces the loss target), 'none' (MonoGS-style noisy constant init)
++        source = self.config["Dataset"].get("depth_source", "gt")
++        if source == "mono":
++            name = os.path.basename(self.dataset.color_paths[cur_frame_idx])[:-4]
++            viewpoint.depth = np.load(os.path.join(self.config["Dataset"]["mono_depth_folder"], name + ".npy")).astype(np.float32)
++        elif source == "none":
++            h, w = viewpoint.depth.shape
++            viewpoint.depth = (2.0 + 0.3 * np.random.randn(h, w)).astype(np.float32)
++
+         # use the observed depth
+         initial_depth = torch.from_numpy(viewpoint.depth).unsqueeze(0)
+         initial_depth[~valid_rgb.cpu()] = 0  # Ignore the invalid rgb pixels
+diff --git a/utils/utils.py b/utils/utils.py
+index 44f1023..6f1ae0d 100644
+--- a/utils/utils.py
++++ b/utils/utils.py
+@@ -79,6 +79,9 @@ def get_loss_mapping_rgbd(config, image, depth, viewpoint, initialization=False)
+     l1_depth = torch.abs(depth * depth_pixel_mask - gt_depth * depth_pixel_mask)
+ 
+     # return alpha * l1_rgb.mean() + (1 - alpha) * l1_depth.mean()
++    # VGAR: Training.depth_loss=False gives the RGB-only mapping condition (default keeps SplatLoc behaviour)
++    if not config["Training"].get("depth_loss", True):
++        return l1_rgb.mean()
+     return l1_rgb.mean() + l1_depth.mean()
+ 
+ 
