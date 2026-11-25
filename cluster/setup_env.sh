@@ -23,6 +23,7 @@ for env in splatloc dav2; do
     "$MAMBA_EXE" create -y -n "$env" -f "env/$env.yml"
   fi
 done
+"$MAMBA_EXE" clean -a -y >/dev/null   # drop the package cache (~7 GB) to stay well inside the 100 GB home quota
 
 # 3. sources at pinned commits
 if [ ! -d "$SPLATLOC_DIR/.git" ]; then git clone "$SPLATLOC_URL" "$SPLATLOC_DIR"; fi

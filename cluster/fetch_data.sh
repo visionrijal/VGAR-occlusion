@@ -22,4 +22,7 @@ if [ ! -s "$D/splatloc-generated-files.zip" ]; then
 fi
 ls -la "$D"
 python vgar/extract_data.py "$D" "$VGAR_WORK/data"
+# On home (100 GB quota) the zips are not worth keeping; they can be downloaded again.
+case "$VGAR_WORK" in "$HOME"*) [ "${KEEP_ZIPS:-0}" = 1 ] || { rm -f "$D"/*.zip; echo "== removed zips to save ~11 GB"; } ;; esac
+du -sh "$VGAR_WORK" "$MAMBA_ROOT_PREFIX" 2>/dev/null
 echo "== data ready. Next: bash cluster/submit_maps.sh"

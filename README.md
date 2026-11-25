@@ -1,7 +1,9 @@
 # VGAR: learned real–virtual occlusion on 3DGS maps (CSC 792)
 
-Code and cluster runbook. Data, maps and weights live outside git in `$VGAR_WORK`
-(default `/scratch/<user>/vgar`, else `~/vgar_work`; see `cluster/config.sh`).
+Code and cluster runbook. Data, maps and weights live outside git in `$VGAR_WORK`:
+`/scratch/jacks.local/<user>/vgar` if you have a scratch directory, otherwise `~/vgar_work`
+(see `cluster/config.sh`). Everything fits in the 100 GB home quota (~50 GB: envs 16 GB, data 15 GB,
+maps <1 GB). Scratch has no quota but will get an expiration policy, so copy results back.
 
 ## Run on Innovator (all commands from the repo root, on the login node)
 

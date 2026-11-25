@@ -2,8 +2,11 @@
 # Override any of these by exporting them before you run a script.
 export REPO=${REPO:-$(pwd)}
 _user=${USER%%@*}
+# Innovator: home has a 100 GB quota; scratch (/scratch/jacks.local/<user>) exists only if requested,
+# has no quota, but will get a data-expiration policy. Use scratch when it exists, else home (~50 GB needed).
 if [ -z "${VGAR_WORK:-}" ]; then
-  if mkdir -p "/scratch/$_user/vgar" 2>/dev/null; then VGAR_WORK=/scratch/$_user/vgar; else VGAR_WORK=$HOME/vgar_work; fi
+  _scr=/scratch/jacks.local/$_user
+  if [ -d "$_scr" ] && [ -w "$_scr" ]; then VGAR_WORK=$_scr/vgar; else VGAR_WORK=$HOME/vgar_work; fi
 fi
 export VGAR_WORK
 export SPLATLOC_DIR=$VGAR_WORK/src/SplatLoc
@@ -13,8 +16,8 @@ export MAMBA_ROOT_PREFIX=${MAMBA_ROOT_PREFIX:-$HOME/micromamba}
 export MAMBA_EXE=$HOME/.local/bin/micromamba
 export SLURM_ACCOUNT=${SLURM_ACCOUNT:-337661}
 export SLURM_PARTITION=${SLURM_PARTITION:-gpu}
-# CUDA 11.6 targets: V100 (7.0), A100 (8.0), RTX 30/40 (8.6, PTX runs on 8.9)
-export TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST:-"7.0;8.0;8.6+PTX"}
+# Innovator GPU nodes: 14 x (2 x A100 80GB) -> compute capability 8.0
+export TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST:-"8.0"}
 export TQDM_MININTERVAL=60   # keep progress bars from flooding Slurm logs
 SCENES=(room_0 room_1 room_2 office_0 office_1 office_2 office_3 office_4)
 CONDS=(rgbd mono rgbonly)
