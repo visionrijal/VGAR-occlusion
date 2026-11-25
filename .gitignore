@@ -11,3 +11,4 @@ checkpoints/
 __pycache__/
 *.log
 !results/**
+results/*_smoke/

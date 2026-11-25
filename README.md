@@ -21,6 +21,19 @@ or `$VGAR_WORK/logs/<job>.out`).
 
 After `git pull`, rerun only what the change needs (the commit message will say).
 
+## Stage 2: features, leave-one-scene-out training, results
+
+When `status.sh` shows all 24 maps `ok`:
+
+```bash
+bash cluster/submit_stage2.sh        # objects (CPU) + 24 feature jobs + 24 LOSO folds, chained with dependencies
+squeue -u $USER                       # ~2 GB of features per map on scratch; each fold ~10-20 min on an A100
+python vgar/aggregate.py main         # in the splatloc env (source cluster/config.sh; activate splatloc)
+git add results && git commit -m "main LOSO results" && git push
+```
+
+`results/main/<cond>/<scene>.json` holds every metric for one fold; `results/main/summary.md` the table.
+
 ## Copy maps back to the laptop
 
 ```bash
