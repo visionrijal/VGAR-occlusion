@@ -27,6 +27,8 @@ When `status.sh` shows all 24 maps `ok`:
 
 ```bash
 bash cluster/submit_stage2.sh        # objects (CPU) + 24 feature jobs + 24 LOSO folds, chained with dependencies
+bash cluster/submit_main.sh          # per-object slices (needed for objects) + the 24 main folds
+bash cluster/submit_ablations.sh     # after the main folds: 9 ablations x 24 folds, U-Net only
 squeue -u $USER                       # ~2 GB of features per map on scratch; each fold ~10-20 min on an A100
 python vgar/aggregate.py main         # in the splatloc env (source cluster/config.sh; activate splatloc)
 git add results && git commit -m "main LOSO results" && git push

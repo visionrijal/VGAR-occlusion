@@ -7,6 +7,9 @@ Labels (proposal §5): occluded(p) = D_gt(p) < z_v(p) - tau; pixels with |D_gt -
 GT depth are excluded. The boundary band is every valid pixel within `band` px of a pixel whose
 3x3 neighbourhood contains both occluded and visible valid pixels.
 
+A(p,z_v): planes read the global depth grid (exact at the plane depths); objects read per-object
+slices over their own depth range (obj_features.py).
+
 Model input (10 channels): A(p,z_v), A_tot, clip(z_v-D), clip((z_v-D)/sigma)/10, clip(sigma), z_v/3,
 silhouette M_v, rendered RGB. z_v-dependent channels are zero outside the silhouette.
 """
@@ -38,7 +41,7 @@ def k_subset(z_grid, planes, K):
 
 
 class SceneData:
-    def __init__(self, cond, scene, K=32, preload=False):
+    def __init__(self, cond, scene, K=32, preload=False, obj_K="16"):
         d = os.path.join(ROOT, "features", cond, scene)
         self.meta = json.load(open(os.path.join(d, "meta.json")))
         self.scene, self.cond = scene, cond
@@ -61,6 +64,11 @@ class SceneData:
         self.obj_zv = ob["zv_mm"]
         self.obj_view = np.array([vidx[v] for v in ob["view"]])
         self.obj_kind = ob["kind"]
+        # objects: A(p,z_v) from slices over each object's own depth range (vgar/obj_features.py);
+        # obj_K="grid" falls back to interpolating the global 32-depth grid (ablation)
+        self.obj_K = str(obj_K)
+        self.A_obj = None if self.obj_K == "grid" else np.load(os.path.join(d, f"A_obj_K{self.obj_K}.npy"),
+                                                               mmap_mode=None if preload else "r")
         self.samples = [("plane", vi, z) for vi in range(len(self.views)) for z in self.meta["planes"]]
         self.samples += [("object", int(self.obj_view[j]), j) for j in range(len(self.obj_view))]
 
@@ -101,7 +109,10 @@ class SceneData:
         gt = self.gt[vi, ys, xs]
         occ = (gt < zv - TAU) & sil
         valid = sil & (gt > 0.01) & (np.abs(gt - zv) >= TAU)
-        A_zv = np.where(sil, self.A_at(vi, np.where(sil, zv, self.z_grid[0]), ys, xs), 0)
+        if kind == "object" and self.A_obj is not None:
+            A_zv = np.where(sil, self.A_obj[s[2], ys, xs].astype(np.float32), 0)
+        else:
+            A_zv = np.where(sil, self.A_at(vi, np.where(sil, zv, self.z_grid[0]), ys, xs), 0)
         D, sig, at = self.D[vi, ys, xs], self.sigma[vi, ys, xs], self.atot[vi, ys, xs]
         score_b0 = np.where(sil, zv - D, -1e3)
         Dc = np.minimum(D, 10.0)

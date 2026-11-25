@@ -36,7 +36,8 @@ p.add_argument("--cond", required=True)
 p.add_argument("--test", required=True)
 p.add_argument("--models", default="lr,mlp,unet")
 p.add_argument("--feats", default="all")
-p.add_argument("--K", type=int, default=32)
+p.add_argument("--K", type=int, default=32, help="global depth slices (planes; objects with --objK grid)")
+p.add_argument("--objK", default="16", choices=["grid", "4", "8", "16"], help="per-object slices for objects")
 p.add_argument("--iters", type=int, default=6000)
 p.add_argument("--batch", type=int, default=16)
 p.add_argument("--crop", type=int, default=256)
@@ -54,16 +55,16 @@ t_start = time.time()
 
 # ---------------------------------------------------------------- data
 if args.smoke:
-    sd = SceneData(args.cond, args.test, args.K, args.preload)
+    sd = SceneData(args.cond, args.test, args.K, args.preload, args.objK)
     half = len(sd.views) // 2
     train = [(sd, s) for s in sd.samples if s[1] < half]
     test_sd, test_samples = sd, [s for s in sd.samples if s[1] >= half]
     train_scenes = [args.test + "(first half)"]
 else:
     train_scenes = [s for s in SCENES if s != args.test]
-    sds = [SceneData(args.cond, s, args.K, args.preload) for s in train_scenes]
+    sds = [SceneData(args.cond, s, args.K, args.preload, args.objK) for s in train_scenes]
     train = [(sd, s) for sd in sds for s in sd.samples]
-    test_sd = SceneData(args.cond, args.test, args.K, args.preload)
+    test_sd = SceneData(args.cond, args.test, args.K, args.preload, args.objK)
     test_samples = test_sd.samples
 # hold out 10% of training *views* (per scene) for threshold selection
 val_keys = {(sd.scene, vi) for sd in {id(x[0]): x[0] for x in train}.values()
@@ -252,7 +253,7 @@ def calib(pr, y, w, bins=15):
     return dict(brier=round(brier, 4), ece=round(float(e / w.sum()), 4))
 
 
-res = dict(cond=args.cond, test=args.test, train=train_scenes, tag=args.tag, feats=args.feats, K=args.K,
+res = dict(cond=args.cond, test=args.test, train=train_scenes, tag=args.tag, feats=args.feats, K=args.K, objK=args.objK,
            models=models, thresholds={k: round(v, 5) for k, v in thr.items()}, info=info,
            n_test_samples=len(test_samples), n_planes=sum(s[0] == "plane" for s in test_samples),
            n_objects=sum(s[0] == "object" for s in test_samples),
