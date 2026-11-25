@@ -60,6 +60,19 @@ for c in CONDS:
                   f"{r0['feature_ms']['per_slice']} ms per depth slice, U-Net {np.mean([r['info']['unet_ms_per_frame'] for r in rt]):.2f} ms "
                   f"per 640x480 frame ({r0['info']['unet_params']:,} parameters).", ""]
 
+# map quality (written by features.py), shared by every tag
+mq = {c: [json.load(open(f)) for f in sorted(glob.glob(os.path.join(REPO, "results", "maps", c, "*.json")))] for c in CONDS}
+if any(mq.values()):
+    lines += ["## Maps (Sequence_2 test views, mean over scenes)", "",
+              "| Condition | PSNR (dB) | median depth error (cm) | depth within 5 cm | Gaussians |", "|---|---|---|---|---|"]
+    for c in CONDS:
+        if mq[c]:
+            q = lambda k: np.mean([m["quality"][k] for m in mq[c]])
+            lines.append(f"| {COND_NAME[c]} | {q('psnr'):.2f} | {q('depth_med_cm'):.2f} | {q('within_5cm'):.1%} | "
+                         f"{np.mean([m['n_gaussians'] for m in mq[c]]):,.0f} |")
+    lines += ["", "Per scene: " + "; ".join(f"{m['scene']}/{c} {m['quality']['depth_med_cm']:.1f} cm"
+                                           for c in CONDS for m in mq[c]), ""]
+
 os.makedirs(base, exist_ok=True)
 open(os.path.join(base, "summary.md"), "w").write("\n".join(lines))
 with open(os.path.join(base, "summary.csv"), "w", newline="") as f:
