@@ -33,7 +33,9 @@ done
 if [ ! -d "$SPLATLOC_DIR/.git" ]; then git clone "$SPLATLOC_URL" "$SPLATLOC_DIR"; fi
 cd "$SPLATLOC_DIR"
 git fetch -q origin && git checkout -q "$SPLATLOC_COMMIT"
-git submodule update --init submodules/diff-gaussian-rasterization submodules/simple-knn
+# --recursive: the rasterizer pulls GLM (third_party/glm) as its own submodule
+git submodule update --init --recursive submodules/diff-gaussian-rasterization submodules/simple-knn
+test -f submodules/diff-gaussian-rasterization/third_party/glm/glm/glm.hpp || { echo "!! GLM headers missing"; exit 1; }
 if git apply --check "$REPO/third_party/splatloc.patch" 2>/dev/null; then
   git apply "$REPO/third_party/splatloc.patch"; echo "== applied VGAR patch to SplatLoc"
 elif git apply --reverse --check "$REPO/third_party/splatloc.patch" 2>/dev/null; then
