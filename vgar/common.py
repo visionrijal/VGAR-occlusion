@@ -78,6 +78,32 @@ def render_aux(cam, pc, colors4, mask=None):
 
 
 @torch.no_grad()
+def clip_opacity(cam, pc, clip, z=None):
+    """Exact A(p, z_v(p)) in one pass with the patched rasterizer (third_party/make_clip_rasterizer.py):
+    each pixel composites only Gaussians whose centre depth is below clip[p] (H x W, metres; <= 0 means
+    no virtual surface -> 0). Returns an H x W tensor."""
+    from diff_gauss_clip import GaussianRasterizationSettings as CSettings, GaussianRasterizer as CRasterizer
+    settings = CSettings(
+        image_height=int(cam.image_height), image_width=int(cam.image_width),
+        tanfovx=math.tan(cam.FoVx * 0.5), tanfovy=math.tan(cam.FoVy * 0.5),
+        bg=torch.zeros(4, device="cuda"), scale_modifier=1.0,
+        viewmatrix=cam.world_view_transform, projmatrix=cam.full_proj_transform,
+        sh_degree=pc.active_sh_degree, campos=cam.camera_center, prefiltered=False, debug=False)
+    if z is None:
+        z = view_depth(cam, pc.get_xyz)
+    sc = pc.get_scaling
+    if sc.shape[-1] == 1:
+        sc = sc.repeat(1, 3)
+    m = z > 0.2  # same near-plane cull as render_aux
+    xyz = pc.get_xyz[m]
+    _, _, alpha, _ = CRasterizer(raster_settings=settings)(
+        means3D=xyz, means2D=torch.zeros_like(xyz), opacities=pc.get_opacity[m],
+        colors_precomp=torch.zeros(xyz.shape[0], 4, device="cuda"), scales=sc[m], rotations=pc.get_rotation[m],
+        clip_depth=torch.as_tensor(clip, dtype=torch.float32, device="cuda").contiguous())
+    return alpha[0]
+
+
+@torch.no_grad()
 def render_rgb(cam, pc):
     """Ordinary colour render (SH degree 0 in SplatLoc configs -> RGB = SH0*C0 + 0.5)."""
     from gaussian_splatting.utils.sh_utils import eval_sh

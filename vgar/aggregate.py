@@ -65,8 +65,10 @@ for c in CONDS:
     rt = [r for r in R if "unet_ms_per_frame" in r["info"]]
     if rt:
         r0 = rt[0]
+        clip = r0["feature_ms"].get("exact_clip_pass")
         lines += [f"Runtime on {r0['feature_ms']['gpu']}: stats pass {r0['feature_ms']['stats_pass']} ms, "
-                  f"{r0['feature_ms']['per_slice']} ms per depth slice, U-Net {np.mean([r['info']['unet_ms_per_frame'] for r in rt]):.2f} ms "
+                  f"{r0['feature_ms']['per_slice']} ms per depth slice, "
+                  + (f"exact one-pass A(p,z_v) {clip} ms, " if clip else "") + f"U-Net {np.mean([r['info']['unet_ms_per_frame'] for r in rt]):.2f} ms "
                   f"per 640x480 frame ({r0['info']['unet_params']:,} parameters).", ""]
 
 # map quality (written by features.py), shared by every tag

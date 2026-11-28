@@ -37,7 +37,8 @@ p.add_argument("--test", required=True)
 p.add_argument("--models", default="lr,mlp,unet")
 p.add_argument("--feats", default="all")
 p.add_argument("--K", type=int, default=32, help="global depth slices (planes; objects with --objK grid)")
-p.add_argument("--objK", default="16", choices=["grid", "4", "8", "16"], help="per-object slices for objects")
+p.add_argument("--objK", default="exact", choices=["exact", "grid", "4", "8", "16"],
+               help="objects: exact one-pass clip (default), per-object slices, or the global grid")
 p.add_argument("--iters", type=int, default=6000)
 p.add_argument("--batch", type=int, default=16)
 p.add_argument("--crop", type=int, default=256)
@@ -258,6 +259,7 @@ res = dict(cond=args.cond, test=args.test, train=train_scenes, tag=args.tag, fea
            n_test_samples=len(test_samples), n_planes=sum(s[0] == "plane" for s in test_samples),
            n_objects=sum(s[0] == "object" for s in test_samples),
            feature_ms=dict(stats_pass=test_sd.meta["ms_stats_pass"], per_slice=test_sd.meta["ms_per_slice"],
+                           exact_clip_pass=test_sd.meta.get("obj_features", {}).get("ms_exact_pass"),
                            gpu=test_sd.meta["gpu"]), results={}, per_view_band3_AP={})
 y, w = cat["y"].astype(bool), cat["w"]
 for subset, sm in [("all", np.ones_like(y)), ("planes", ~cat["is_obj"]), ("objects", cat["is_obj"])]:

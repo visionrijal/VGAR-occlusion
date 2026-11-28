@@ -1,7 +1,7 @@
 #!/bin/bash
 # Ablations (U-Net only; baselines are recomputed in every fold), 3 conditions x 8 folds each:
 #   input features   depth_only | opacity_only | no_rgb
-#   object slices    4 | 8 | grid (the global 32-depth grid instead of per-object slices)
+#   object slices    4 | 8 | 16 per-object slices, or grid (the global 32-depth grid) instead of the exact clip
 #   plane slices     global grid with K = 4 | 8 | 16 depths (planes are then interpolated too)
 # Run after the main folds have finished.   Usage: bash cluster/submit_ablations.sh [names...]
 set -euo pipefail
@@ -9,7 +9,7 @@ source cluster/config.sh
 L=$VGAR_WORK/logs; mkdir -p "$L"
 declare -A ABL=(
   [feats_depth_only]="--feats depth_only" [feats_opacity_only]="--feats opacity_only" [feats_no_rgb]="--feats no_rgb"
-  [objK_4]="--objK 4" [objK_8]="--objK 8" [objK_grid]="--objK grid"
+  [objK_4]="--objK 4" [objK_8]="--objK 8" [objK_16]="--objK 16" [objK_grid]="--objK grid"
   [K_4]="--K 4" [K_8]="--K 8" [K_16]="--K 16"
 )
 names=("$@"); [ ${#names[@]} -gt 0 ] || names=("${!ABL[@]}")

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Per-object slices for all 24 maps, then the 24 main LOSO folds (all methods), each condition's folds
+# Per-object features (exact one-pass clip + slice variants) for all 24 maps, then the 24 main LOSO folds (all methods), each condition's folds
 # waiting for that condition's 8 object-feature jobs. Needs features + objects from submit_stage2.sh.
 # Usage: scancel -u $USER   (if older folds are still queued)   then   bash cluster/submit_main.sh
 set -euo pipefail

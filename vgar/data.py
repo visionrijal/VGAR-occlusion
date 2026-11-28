@@ -41,7 +41,7 @@ def k_subset(z_grid, planes, K):
 
 
 class SceneData:
-    def __init__(self, cond, scene, K=32, preload=False, obj_K="16"):
+    def __init__(self, cond, scene, K=32, preload=False, obj_K="exact"):
         d = os.path.join(ROOT, "features", cond, scene)
         self.meta = json.load(open(os.path.join(d, "meta.json")))
         self.scene, self.cond = scene, cond
@@ -67,7 +67,8 @@ class SceneData:
         # objects: A(p,z_v) from slices over each object's own depth range (vgar/obj_features.py);
         # obj_K="grid" falls back to interpolating the global 32-depth grid (ablation)
         self.obj_K = str(obj_K)
-        self.A_obj = None if self.obj_K == "grid" else np.load(os.path.join(d, f"A_obj_K{self.obj_K}.npy"),
+        name = "A_obj_exact.npy" if self.obj_K == "exact" else f"A_obj_K{self.obj_K}.npy"
+        self.A_obj = None if self.obj_K == "grid" else np.load(os.path.join(d, name),
                                                                mmap_mode=None if preload else "r")
         self.samples = [("plane", vi, z) for vi in range(len(self.views)) for z in self.meta["planes"]]
         self.samples += [("object", int(self.obj_view[j]), j) for j in range(len(self.obj_view))]

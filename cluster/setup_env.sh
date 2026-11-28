@@ -52,6 +52,9 @@ activate splatloc
 echo "== building rasterizer + simple-knn for TORCH_CUDA_ARCH_LIST=$TORCH_CUDA_ARCH_LIST (5-15 min)"
 pip install --no-build-isolation "$SPLATLOC_DIR/submodules/diff-gaussian-rasterization" "$SPLATLOC_DIR/submodules/simple-knn"
 
+# 4b. one-pass clip rasterizer (exact A(p, z_v(p)) for arbitrary virtual depth maps)
+bash cluster/build_clip.sh
+
 # 5. per-machine SplatLoc configs
 python vgar/make_configs.py
 
