@@ -1,0 +1,14 @@
+{
+ "scene": "room_0",
+ "cond": "rgbd_occ",
+ "n_gaussians": 415537,
+ "ms_stats_pass": 4.159,
+ "ms_per_slice": 2.187,
+ "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+ "quality": {
+  "psnr": 27.1534,
+  "depth_med_cm": 0.7989,
+  "within_5cm": 0.9502,
+  "low_coverage": 0.0019
+ }
+}

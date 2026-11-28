@@ -42,7 +42,7 @@ def main(scene, cond):
     meta = json.load(open(os.path.join(d, "meta.json")))
     ob = np.load(os.path.join(ROOT, "objects", f"{scene}.npz"))
     zv_all, views = ob["zv_mm"], ob["view"]
-    cfg, pc = load_model(f"configs/vgar/{scene}_{cond}.yaml", cond)
+    cfg, pc = load_model(f"configs/vgar/{scene}_{cond.split('_')[0]}.yaml", cond)  # rgbd_occ etc. reuse the base config
     ds = test_dataset(cfg)
     N, H, W = zv_all.shape
     out = {k: np.lib.format.open_memmap(os.path.join(d, f"A_obj_K{k}.npy"), "w+", np.float16, (N, H, W)) for k in SUBSETS}

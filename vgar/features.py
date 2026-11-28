@@ -35,7 +35,7 @@ def main(scene, cond):
         print(f"{scene}/{cond}: features exist, skipping")
         return
     os.makedirs(out, exist_ok=True)
-    cfg, pc = load_model(f"configs/vgar/{scene}_{cond}.yaml", cond)
+    cfg, pc = load_model(f"configs/vgar/{scene}_{cond.split('_')[0]}.yaml", cond)  # rgbd_occ etc. reuse the base config
     ds = test_dataset(cfg)
     views = list(range(0, ds.num_imgs, 10))
     V, K, H, W = len(views), len(Z_GRID), ds.height, ds.width

@@ -13,8 +13,10 @@ from scipy.stats import wilcoxon
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 tag = sys.argv[1] if len(sys.argv) > 1 else "main"
 base = os.path.join(REPO, "results", tag)
-CONDS = ["rgbd", "mono", "rgbonly"]
-COND_NAME = {"rgbd": "RGB-D", "mono": "RGB + Depth Anything V2", "rgbonly": "RGB-only"}
+COND_NAME = {"rgbd": "RGB-D", "mono": "RGB + Depth Anything V2", "rgbonly": "RGB-only",
+             "rgbd_ctl": "RGB-D, depth fine-tune (control)", "rgbd_occ": "RGB-D, occlusion fine-tune",
+             "mono_ctl": "Depth Anything, depth fine-tune (control)", "mono_occ": "Depth Anything, occlusion fine-tune"}
+CONDS = [c for c in COND_NAME if os.path.isdir(os.path.join(base, c)) or os.path.isdir(os.path.join(REPO, "results", "maps", c))]
 ORDER = ["B0", "B1", "B2", "LR", "MLP", "UNet"]
 
 runs = {c: [json.load(open(f)) for f in sorted(glob.glob(os.path.join(base, c, "*.json")))] for c in CONDS}

@@ -1,14 +1,14 @@
 {
  "scene": "room_0",
  "cond": "mono",
- "n_gaussians": 408344,
- "ms_stats_pass": 3.492,
- "ms_per_slice": 2.309,
- "gpu": "NVIDIA A100 80GB PCIe",
+ "n_gaussians": 407967,
+ "ms_stats_pass": 4.475,
+ "ms_per_slice": 2.234,
+ "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
  "quality": {
-  "psnr": 25.8692,
-  "depth_med_cm": 4.095,
-  "within_5cm": 0.5871,
-  "low_coverage": 0.0013
+  "psnr": 25.8793,
+  "depth_med_cm": 4.4582,
+  "within_5cm": 0.5809,
+  "low_coverage": 0.0011
  }
 }
