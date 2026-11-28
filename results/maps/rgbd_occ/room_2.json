@@ -1,0 +1,14 @@
+{
+ "scene": "room_2",
+ "cond": "rgbd_occ",
+ "n_gaussians": 286935,
+ "ms_stats_pass": 3.296,
+ "ms_per_slice": 2.253,
+ "gpu": "NVIDIA A100 80GB PCIe",
+ "quality": {
+  "psnr": 30.2869,
+  "depth_med_cm": 0.6213,
+  "within_5cm": 0.9691,
+  "low_coverage": 0.001
+ }
+}
