@@ -202,8 +202,36 @@ def fig_qual(scene="room_0", cond="rgbd", n_examples=3):
     save(fig, f"fig_qualitative_{scene}_{cond}")
 
 
+def fig_finetune():
+    """Soft opacity and U-Net on the original map vs. depth fine-tune (control) vs. occlusion fine-tune.
+    Thin lines: one scene each; thick: mean over 8 scenes. x labels carry the map's mean depth error."""
+    fig, axes = plt.subplots(1, 2, figsize=(6.6, 2.5), sharey=True)
+    versions = [("", "original"), ("_ctl", "depth\nfine-tune"), ("_occ", "occlusion\nfine-tune")]
+    for ax, (base, bname) in zip(axes, [("rgbd", "RGB-D maps"), ("mono", "Depth Anything maps")]):
+        labels = []
+        for vi, (suf, vname) in enumerate(versions):
+            Q = quality(base + suf)
+            labels.append(f"{vname}\n{np.mean([q['depth_med_cm'] for q in Q.values()]):.1f} cm")
+        for m in ["B2", "UNet"]:
+            name, col, mk = METHOD[m]
+            per = np.array([[load("main", base + suf)[sc]["results"]["all"]["band3"][m]["AP"] for suf, _ in versions]
+                            for sc in sorted(load("main", base))])
+            for row in per:
+                ax.plot(range(3), row, color=col, lw=0.6, alpha=0.35, zorder=2)
+            ax.plot(range(3), per.mean(0), color=col, lw=2.2, marker=mk, ms=5.5, mec="white", mew=0.7, label=name, zorder=3)
+        ax.set_xticks(range(3)); ax.set_xticklabels(labels)
+        ax.set_xlim(-0.3, 2.3)
+        ax.set_title(bname, color=INK)
+        grid(ax)
+    axes[0].set_ylabel("AP within 3 px of the occlusion boundary")
+    axes[0].legend(loc="lower right", frameon=False, handletextpad=0.3)
+    fig.tight_layout()
+    save(fig, "fig_finetune")
+
+
 if __name__ == "__main__":
     which = sys.argv[1] if len(sys.argv) > 1 else "all"
-    for name, f in [("main", fig_main), ("gain", fig_gain), ("ablation", fig_ablation), ("qual", fig_qual)]:
+    for name, f in [("main", fig_main), ("gain", fig_gain), ("ablation", fig_ablation), ("qual", fig_qual),
+                    ("finetune", fig_finetune)]:
         if which in (name, "all"):
             f()
